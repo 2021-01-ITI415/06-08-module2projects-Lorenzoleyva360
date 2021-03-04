@@ -39,7 +39,7 @@ public class Deck : MonoBehaviour {
 	// called by Prospector when it is ready
 	public void InitDeck(string deckXMLText) {
 		// from page 576
-		if( GameObject.Find("_Deck") == null) {
+		if(GameObject.Find("_Deck") == null) {
 			GameObject anchorGO = new GameObject("_Deck");
 			deckAnchor = anchorGO.transform;
 		}
@@ -157,13 +157,18 @@ public class Deck : MonoBehaviour {
 		SpriteRenderer tSR = null;  // so tempted to make a D&D ref here...
 		
 		for (int i=0; i<cardNames.Count; i++) {
+		cards.Add (MakeCard(i));
+			}
+		}
+
+		private Card MakeCard(int cNum){
 			GameObject cgo = Instantiate(prefabCard) as GameObject;
 			cgo.transform.parent = deckAnchor;
 			Card card = cgo.GetComponent<Card>();
 			
-			cgo.transform.localPosition = new Vector3(i%13*3, i/13*4, 0);
-			
-			card.name = cardNames[i];
+			cgo.transform.localPosition = new Vector3((cNum%13)*3, cNum/13*4, 0);
+			// Assign basic Values to the card
+			card.name = cardNames[cNum];
 			card.suit = card.name[0].ToString();
 			card.rank = int.Parse (card.name.Substring (1));
 			
@@ -171,37 +176,55 @@ public class Deck : MonoBehaviour {
 				card.colS = "Red";
 				card.color = Color.red;
 			}
-			
+			// Pull the CardDefinition for this card
 			card.def = GetCardDefinitionByRank(card.rank);
 			
-			// Add Decorators
+			AddDecorators(card);
+
+			return card;
+		}
+			// These private variables will be reused several times in helper methods
+			private Sprite _tSp = null;
+			private GameObject _tGO = null;
+			private SpriteRenderer _tSR = null;
+
+			private void AddDecorators(Card card) {
+			// Add Decorators 
 			foreach (Decorator deco in decorators) {
-				tGO = Instantiate(prefabSprite) as GameObject;
-				tSR = tGO.GetComponent<SpriteRenderer>();
 				if (deco.type == "suit") {
-					tSR.sprite = dictSuits[card.suit];
+					// Instantiate a Sprite GameObject
+					_tGO = Instantiate(prefabSprite) as GameObject;
+					// Get the SpriteRenderer Component 
+					_tSR = _tGO.GetComponent<SpriteRenderer>();
+					// Set the Sprite to the proper suit
+					_tSR.sprite = dictSuits[card.suit];
 				} else { // it is a rank
-					tS = rankSprites[card.rank];
-					tSR.sprite = tS;
-					tSR.color = card.color;
+					_tGO= Instantiate (prefabSprite) as GameObject
+					_tSR = _tGO,GetComponent<SpriteRenderer>();
+					//Get the proper Sprite to show this rank
+					_tSp = rankSprites[card.rank];
+					// Assign this rank Sprite to the SpriteRenderer
+					_tSR.sprite = _tSp;
+					_tSR.color = card.color;
 				}
-				
-				tSR.sortingOrder = 1;                     // make it render above card
-				tGO.transform.parent = cgo.transform;     // make deco a child of card GO
-				tGO.transform.localPosition = deco.loc;   // set the deco's local position
-				
+				_tSR.sortingOrder = 1;                     // make it render above card
+				_tGO.transform.Setparent (card.transform);     // make deco a child of card GO
+				_tGO.transform.localPosition = deco.loc;   // set the deco's local position
+				//Flip the decorator if needed
 				if (deco.flip) {
-					tGO.transform.rotation = Quaternion.Euler(0,0,180);
+					_tGO.transform.rotation = Quaternion.Euler(0,0,180);
 				}
-				
+				// Set the scale to keep decos from being too big
 				if (deco.scale != 1) {
-					tGO.transform.localScale = Vector3.one * deco.scale;
+					_tGO.transform.localScale = Vector3.one * deco.scale;
 				}
-				
-				tGO.name = deco.type;
-				
-				card.decoGOs.Add (tGO);
-			} // foreach Deco
+				// Name this GameObject so it's easy to see
+				_tGO.name = deco.type;
+				// Add this deco GameObject to the List card.decoGOs
+				card.decoGOs.Add(_tGO);
+			} 
+		
+			// foreach Deco
 			
 			
 			//Add the pips
