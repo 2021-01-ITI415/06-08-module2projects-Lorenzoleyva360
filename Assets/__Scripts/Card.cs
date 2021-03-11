@@ -25,7 +25,7 @@ public class Card : MonoBehaviour {
 			back.SetActive(!value);
 		}
 	}
-
+}
 
 	// Use this for initialization
 	void Start () {
