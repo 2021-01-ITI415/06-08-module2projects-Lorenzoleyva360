@@ -293,14 +293,13 @@ public class Deck : MonoBehaviour {
 			
 		} // for all the Cardnames	
 	} 
-	 static public void Shuffle(ref List<Card> oCards)
-	 {
+	 
+	 static public void Shuffle(ref List<Card> oCards) {
 	 	List<Card> tCards = new List<Card>();
 
 	 	int ndx;   // which card to move
-
-	 	while (oCards.Count > 0) 
-	 	{
+		tCards = new List<Card>();
+	 	while (oCards.Count > 0) {
 	 		// find a random card, add it to shuffled list and remove from original deck
 	 		ndx = Random.Range(0,oCards.Count);
 	 		tCards.Add(oCards[ndx]);
@@ -308,10 +307,6 @@ public class Deck : MonoBehaviour {
 	 	}
 
 	 	oCards = tCards;
-
-	 	//because oCards is a ref parameter, the changes made are propogated back
-	 	//for ref paramters changes made in the function persist.
-
 
 	 }
 
