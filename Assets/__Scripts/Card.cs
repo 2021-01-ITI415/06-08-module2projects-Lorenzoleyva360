@@ -3,53 +3,86 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Card : MonoBehaviour {
-	[Header("Set Dynamically")]
-	public string    suit;
-	public int       rank;
-	public Color     color = Color.black;
-	public string    colS = "Black";  // or "Red"
-	
-	public List<GameObject> decoGOs = new List<GameObject>();
-	public List<GameObject> pipGOs = new List<GameObject>();
-	
-	public GameObject back;  // back of card;
-	public CardDefinition def;  // from DeckXML.xml		
+	public string           suit; 
+	public int              rank;
+	public Color            color = Color.black;
+	public string           colS = "Black";
 
+	public List<GameObject> decoGOs = new List<GameObject>();
+	public List<GameObject> pipGOs  = new List<GameObject>();
+	public GameObject       back;
+	
+	public CardDefinition   def;
+	
+	public SpriteRenderer[]        spriteRenderers;
+	
+	void Start() {
+		SetSortOrder(0);
+	}
 
 	public bool faceUp {
 		get {
-			return (!back.activeSelf);
+			return( !back.activeSelf );
 		}
-
 		set {
 			back.SetActive(!value);
 		}
 	}
-}
 
-	// Use this for initialization
-	void Start () {
-	
+	public void PopulateSpriteRenderers() {
+		if (spriteRenderers == null || spriteRenderers.Length == 0) {
+			spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+		}
+	}
+
+	public void SetSortingLayerName(string tSLN) {
+		PopulateSpriteRenderers();
+		
+		foreach (SpriteRenderer tSR in spriteRenderers) {
+			tSR.sortingLayerName = tSLN;
+		}
+	}
+
+	public void SetSortOrder(int sOrd) {
+				PopulateSpriteRenderers ();
+				foreach (SpriteRenderer tSR in spriteRenderers) {
+						if (tSR.gameObject == this.gameObject) {
+								tSR.sortingOrder = sOrd;
+								continue;
+				
+						}
+						switch (tSR.gameObject.name) {
+						case "back": // if the name is "back"
+								tSR.sortingOrder = sOrd + 2;
+								break;
+						case "face":
+						default:
+								tSR.sortingOrder = sOrd + 1;
+								break;
+						}
+				}
+		}
+
+	virtual public void OnMouseUpAsButton() {
+		print (name);
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
-	
-} 
-
-[System.Serializable]
-public class Decorator{
-	public string	type;			// For card pips, tyhpe = "pip"
-	public Vector3	loc;			// location of sprite on the card
-	public bool		flip = false;	//whether to flip vertically
-	public float 	scale = 1.0f;
 }
 
 [System.Serializable]
-public class CardDefinition{
-	public string	face;	//sprite to use for face cart
-	public int		rank;	// value from 1-13 (Ace-King)
-	public List<Decorator>	
-					pips = new List<Decorator>();  // Pips Used
+public class Decorator {
+	
+	public string    type; 
+	public Vector3   loc; 
+	public bool      flip = false; 
+	public float     scale = 1f;  
+}
+
+[System.Serializable]
+public class CardDefinition {
+	
+	public string             face; // Sprite to use for each face card
+	public int                rank; // The rank (1-13) of this card
+	public List<Decorator>    pips = new List<Decorator>();  
+	
 }
